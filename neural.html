@@ -1,0 +1,171 @@
+<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+<script type="text/javascript" src = 'https://code.jquery.com/jquery-3.4.1.min.js'></script>
+<meta charset="utf-8">
+<canvas id = 'ca'></canvas>
+<script type="text/javascript" src = 'net.js'></script>
+<script type="text/javascript" src = 'initCanvas.js'></script>
+
+<script type="text/javascript">
+	var net, go = true;	
+	var alph = ['а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я'];
+	var gMatrix = [];
+	var gMatrix1 = [];
+	window.onload = function(){
+		initializtionCanvas();	
+
+		var arr = new Array(33);
+		var arr1 = new Array(33);
+
+		net = new Net({data:arr},
+			{data:[[0,0,0,0,0,0,0,0]]},
+			{data:arr1},0.5);
+		net.draw();
+
+	}
+
+
+	function lrn(){
+		setInterval(update,100);
+	}
+
+	function detected(){
+		gMatrix = [];
+		var str = $('.inp1').val();
+		var t0 = new Array(33);
+		for(var i = 0; i < t0.length; ++i) t0[i] = 0;
+
+			for(var i = 0; i < str.length; ++i){
+				for(var j = 0; j < alph.length; ++j){
+					if(str[i] == alph[j]){
+						t0[j] = 1;
+					}
+				}
+			}
+			gMatrix.push(t0);
+
+			net.forward({input:gMatrix[0],output:gMatrix1[0]},false);	
+			
+			$('.inp2').val('');
+			for(var i = 0; i < net.output.data.length; ++i){
+				if(net.output.data[i] > 0.3){
+					$('.inp2').val($('.inp2').val() + alph[i]);
+				}
+				
+			}
+		}
+
+
+		function mem(){
+			var str = $('.inp1').val();
+			var t0 = new Array(33);
+			for(var i = 0; i < t0.length; ++i) t0[i] = 0;
+
+				for(var i = 0; i < str.length; ++i){
+					for(var j = 0; j < alph.length; ++j){
+						if(str[i] == alph[j]){
+							t0[j] = 1;
+						}
+					}
+				}
+				gMatrix.push(t0);
+
+				str = $('.inp2').val();
+				for(var i = 0; i < t0.length; ++i) t0[i] = 0;
+
+					for(var i = 0; i < str.length; ++i){
+						for(var j = 0; j < alph.length; ++j){
+							if(str[i] == alph[j]){
+								t0[j] = 1;
+							}
+						}
+					}
+					gMatrix1.push(t0);
+				}
+
+
+				function update(){
+					if(go){
+						for(var i = 0; i < gMatrix.length; ++i){
+							net.forward({input:gMatrix[i],output:gMatrix1[i]},true);	
+						}
+						net.update();
+					}
+
+				}
+
+			</script>
+
+			<style type="text/css">
+				*{
+					margin: 0px;
+					padding: 0px;
+
+				}
+				table{
+					position: absolute;
+					z-index: 999;
+					top:40px;
+					width:800px;
+					border-collapse: collapse;
+					text-align: center;
+					left: 550px;
+					font-family: 'Tahoma';
+				}
+
+				table tr th{
+					width: 80px;
+
+				}
+
+				.d{
+					font-weight: normal;
+				}
+
+				.btn{
+					position: absolute;
+					padding: 3px;
+					font-family: 'Tahoma';
+					font-size:17px;
+					width:130px;
+				}
+
+				.inp{
+					position: absolute;
+					top:650px;
+				}
+
+				.inp1{
+					left:550px;
+				}
+
+				.inp2{
+					left:750px;
+				}
+
+
+				.memory{
+					left: 550px;
+					top:550px;
+				}
+
+				.learn{
+					left: 700px;
+					top:550px;	
+				}
+
+				.detected{
+					left: 850px;
+					top:550px;
+				}
+				body{
+
+				}
+			</style>
+
+			<table border="1" width="100%" cellpadding="5"></table>
+			<input type="button" name="" value="Запомнить" onclick="mem()" class = 'memory btn'>
+			<input type="button" name="" value="Обучить" onclick="lrn()" class = 'learn btn'>
+			<input type="button" name="" value="Распознать" onclick="detected()" class = 'detected btn'>
+			<input type="" name="" class = 'inp1 inp'>
+			<input type="" name="" class = 'inp2 inp'>
+
